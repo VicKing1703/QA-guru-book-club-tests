@@ -3,7 +3,7 @@ package models.clubs;
 import java.util.List;
 
 /**
- * Модель клуба в ответе GET /clubs/.
+ * Модель клуба в ответах API (список, создание, обновление).
  */
 public record ClubModel(
         Integer id,

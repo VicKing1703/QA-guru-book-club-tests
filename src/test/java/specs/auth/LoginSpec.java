@@ -1,4 +1,4 @@
-package specs.auth.login;
+package specs.auth;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.RequestSpecification;

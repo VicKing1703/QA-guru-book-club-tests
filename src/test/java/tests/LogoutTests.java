@@ -1,62 +1,54 @@
 package tests;
 
+import io.qameta.allure.Feature;
 import models.auth.login.LoginRequestModel;
 import models.auth.logout.LogoutValidationErrorResponseModel;
 import models.auth.logout.LogoutAuthErrorResponseModel;
 import models.auth.logout.LogoutRequestModel;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.qameta.allure.Allure.step;
 import static tests.TestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Feature("Тесты auth")
+@DisplayName("Логаут пользователя")
 public class LogoutTests extends TestBase {
 
     @Test
+    @DisplayName("Удачный логаут")
     public void successfulLogoutTest() {
         LoginRequestModel loginData = new LoginRequestModel(LOGIN_USERNAME, LOGIN_PASSWORD);
+        String refreshToken = api.auth.loginAndGetRefreshToken(loginData);
 
-
-        String refreshToken = step("Авторизация и получение refresh токена", () ->
-                api.auth.loginAndGetRefreshToken(loginData));
-
-        step("Успешный логаут с refresh токеном", () -> {
-            LogoutRequestModel logoutData = new LogoutRequestModel(refreshToken);
-            api.auth.logout(logoutData);
-        });
+        LogoutRequestModel logoutData = new LogoutRequestModel(refreshToken);
+        api.auth.logout(logoutData);
     }
 
     @Test
+    @DisplayName("Логаут с использованием access токена")
     public void accessTokenLogoutErrorTest() {
         LoginRequestModel loginData = new LoginRequestModel(LOGIN_USERNAME, LOGIN_PASSWORD);
+        String accessToken = api.auth.loginAndGetAccessToken(loginData);
 
+        LogoutRequestModel logoutData = new LogoutRequestModel(accessToken);
+        LogoutAuthErrorResponseModel logoutResponse = api.auth.authErrorLogout(logoutData);
 
-        String accessToken = step("Авторизация и получение access токена", () ->
-                api.auth.loginAndGetAccessToken(loginData));
-
-        step("Не успешный логаут с access токеном", () -> {
-            LogoutRequestModel logoutData = new LogoutRequestModel(accessToken);
-
-            LogoutAuthErrorResponseModel logoutResponse = api.auth.authErrorLogout(logoutData);
-
-            String expectedErrorDetail = WRONG_TOKEN_TYPE_ERROR;
-            String expectedErrorCode = VALIDATION_TOKEN_ERROR;
-            String actualErrorDetail = logoutResponse.detail();
-            String actualErrorCode = logoutResponse.code();
-            assertThat(actualErrorDetail).isEqualTo(expectedErrorDetail);
-            assertThat(actualErrorCode).isEqualTo(expectedErrorCode);
-        });
+        String actualErrorDetail = logoutResponse.detail();
+        String actualErrorCode = logoutResponse.code();
+        assertThat(actualErrorDetail).isEqualTo(WRONG_TOKEN_TYPE_ERROR);
+        assertThat(actualErrorCode).isEqualTo(VALIDATION_TOKEN_ERROR);
     }
 
     @Test
+    @DisplayName("Логаут без токена")
     public void withoutTokenLogoutErrorTest() {
         LogoutRequestModel logoutData = new LogoutRequestModel("");
 
         LogoutValidationErrorResponseModel logoutResponse = api.auth.validationErrorLogout(logoutData);
 
-        String expectedError = EMPTY_FIELD_ERROR;
         String actualError = logoutResponse.refresh().get(0);
-        assertThat(actualError).isEqualTo(expectedError);
+        assertThat(actualError).isEqualTo(EMPTY_FIELD_ERROR);
     }
 }
 

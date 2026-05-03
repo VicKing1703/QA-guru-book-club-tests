@@ -1,4 +1,6 @@
-package models.clubs;
+package models.clubs.get_clubs;
+
+import models.clubs.ClubModel;
 
 import java.util.List;
 

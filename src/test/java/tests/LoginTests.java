@@ -1,5 +1,6 @@
 package tests;
 
+import io.qameta.allure.Feature;
 import models.auth.login.LoginValidationErrorResponseModel;
 import models.auth.login.LoginRequestModel;
 import models.auth.login.LoginSuccessResponseModel;
@@ -7,11 +8,11 @@ import models.auth.login.LoginAuthErrorResponseModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tests.TestData.*;
 
-@DisplayName("Тесты на логин")
+@Feature("Тесты auth")
+@DisplayName("Логин пользователя")
 public class LoginTests extends TestBase {
 
     @Test
@@ -19,15 +20,13 @@ public class LoginTests extends TestBase {
     public void successfulLoginTest() {
         LoginRequestModel loginData = new LoginRequestModel(LOGIN_USERNAME, LOGIN_PASSWORD);
 
-        step("Запрос логина", () -> {
-            LoginSuccessResponseModel loginResponse = api.auth.login(loginData);
+        LoginSuccessResponseModel loginResponse = api.auth.login(loginData);
 
-            String actualAccess = loginResponse.access();
-            String actualRefresh = loginResponse.refresh();
-            assertThat(actualAccess).startsWith(LOGIN_TOKEN_PREFIX);
-            assertThat(actualRefresh).startsWith(LOGIN_TOKEN_PREFIX);
-            assertThat(actualAccess).isNotEqualTo(actualRefresh);
-        });
+        String actualAccess = loginResponse.access();
+        String actualRefresh = loginResponse.refresh();
+        assertThat(actualAccess).startsWith(LOGIN_TOKEN_PREFIX);
+        assertThat(actualRefresh).startsWith(LOGIN_TOKEN_PREFIX);
+        assertThat(actualAccess).isNotEqualTo(actualRefresh);
     }
 
     @Test
@@ -35,13 +34,10 @@ public class LoginTests extends TestBase {
     public void wrongPasswordLoginTest() {
         LoginRequestModel loginData = new LoginRequestModel(LOGIN_USERNAME, LOGIN_WRONG_PASSWORD);
 
-        step("Запрос логина с неверным паролем", () -> {
-            LoginAuthErrorResponseModel loginResponse = api.auth.loginWrongCredentials(loginData);
+        LoginAuthErrorResponseModel loginResponse = api.auth.loginWrongCredentials(loginData);
 
-            String expectedError = LOGIN_WRONG_CREDENTIALS_ERROR;
-            String actualError = loginResponse.detail();
-            assertThat(actualError).isEqualTo(expectedError);
-        });
+        String actualError = loginResponse.detail();
+        assertThat(actualError).isEqualTo(LOGIN_WRONG_CREDENTIALS_ERROR);
     }
 
     // 401 WrongCredentials
@@ -50,13 +46,10 @@ public class LoginTests extends TestBase {
     public void wrongUsernameLoginTest() {
         LoginRequestModel loginData = new LoginRequestModel(LOGIN_WRONG_USERNAME, LOGIN_PASSWORD);
 
-        step("Запрос логина с неверным именем", () -> {
-            LoginAuthErrorResponseModel loginResponse = api.auth.loginWrongCredentials(loginData);
+        LoginAuthErrorResponseModel loginResponse = api.auth.loginWrongCredentials(loginData);
 
-            String expectedError = LOGIN_WRONG_CREDENTIALS_ERROR;
-            String actualError = loginResponse.detail();
-            assertThat(actualError).isEqualTo(expectedError);
-        });
+        String actualError = loginResponse.detail();
+        assertThat(actualError).isEqualTo(LOGIN_WRONG_CREDENTIALS_ERROR);
     }
 
     // 400 EmptyField
@@ -67,9 +60,8 @@ public class LoginTests extends TestBase {
 
         LoginValidationErrorResponseModel loginResponse = api.auth.loginEmptyField(loginData);
 
-        String expectedError = EMPTY_FIELD_ERROR;
         String actualError = loginResponse.username().get(0);
-        assertThat(actualError).isEqualTo(expectedError);
+        assertThat(actualError).isEqualTo(EMPTY_FIELD_ERROR);
     }
 
     @Test
@@ -79,9 +71,8 @@ public class LoginTests extends TestBase {
 
         LoginValidationErrorResponseModel loginResponse = api.auth.loginEmptyField(loginData);
 
-        String expectedError = EMPTY_FIELD_ERROR;
         String actualError = loginResponse.password().get(0);
-        assertThat(actualError).isEqualTo(expectedError);
+        assertThat(actualError).isEqualTo(EMPTY_FIELD_ERROR);
     }
 
     @Test

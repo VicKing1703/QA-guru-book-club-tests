@@ -10,11 +10,12 @@ import models.auth.logout.LogoutAuthErrorResponseModel;
 import models.auth.logout.LogoutRequestModel;
 
 import static io.restassured.RestAssured.given;
-import static specs.auth.login.LoginSpec.*;
-import static specs.auth.logout.LogoutSpec.*;
+import static specs.auth.LoginSpec.*;
+import static specs.auth.LogoutSpec.*;
 
 public class AuthApiClient {
 
+    @Step("Успешный логин, тело с access и refresh")
     public LoginSuccessResponseModel login(LoginRequestModel loginBody) {
         return given(loginRequestSpec)
                 .body(loginBody)
@@ -26,7 +27,7 @@ public class AuthApiClient {
                 .as(LoginSuccessResponseModel.class);
     }
 
-    @Step("Авторизация и получение рефреш-токена")
+    @Step("Авторизация и получение refresh-токена")
     public String loginAndGetRefreshToken(LoginRequestModel loginBody) {
         return given(loginRequestSpec)
                 .body(loginBody)
@@ -38,7 +39,7 @@ public class AuthApiClient {
                 .path("refresh");
     }
 
-    @Step("Авторизация и получение аксес-токена")
+    @Step("Авторизация и получение access-токена")
     public String loginAndGetAccessToken(LoginRequestModel loginBody) {
         return given(loginRequestSpec)
                 .body(loginBody)
@@ -50,6 +51,7 @@ public class AuthApiClient {
                 .path("access");
     }
 
+    @Step("Логин с неверным логином или паролем")
     public LoginAuthErrorResponseModel loginWrongCredentials(LoginRequestModel loginBody) {
         return given(loginRequestSpec)
                 .body(loginBody)
@@ -61,6 +63,7 @@ public class AuthApiClient {
                 .as(LoginAuthErrorResponseModel.class);
     }
 
+    @Step("Логин с пустым логином и/или паролем")
     public LoginValidationErrorResponseModel loginEmptyField(LoginRequestModel loginBody) {
         return  given(loginRequestSpec)
                 .body(loginBody)
@@ -72,7 +75,7 @@ public class AuthApiClient {
                 .as(LoginValidationErrorResponseModel.class);
     }
 
-    @Step("Отправка запроса logout")
+    @Step("Успешный выход по refresh-токену")
     public void logout(LogoutRequestModel logoutBody) {
         given(logoutRequestSpec)
                 .body(logoutBody)
@@ -82,6 +85,7 @@ public class AuthApiClient {
                 .spec(successfulLogoutResponseSpec);
     }
 
+    @Step("Выход без refresh-токена")
     public LogoutValidationErrorResponseModel validationErrorLogout(LogoutRequestModel logoutBody) {
         return given(logoutRequestSpec)
                 .body(logoutBody)
@@ -93,6 +97,7 @@ public class AuthApiClient {
                 .as(LogoutValidationErrorResponseModel.class);
     }
 
+    @Step("Выход с неверным типом токена")
     public LogoutAuthErrorResponseModel authErrorLogout(LogoutRequestModel logoutBody) {
         return given(logoutRequestSpec)
                 .body(logoutBody)
